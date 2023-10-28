@@ -7,7 +7,7 @@ async function ia(requete){
 
 
   
-deepai.setApiKey("quickstart-QUdJIGlzIGNvbWluZy4uLi4K");
+deepai.setApiKey("quickstart-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");
 
   
 var rep =await deepai.callStandardApi("text-generator",{text:requete});
