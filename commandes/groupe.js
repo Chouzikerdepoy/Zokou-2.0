@@ -336,10 +336,10 @@ zokou({ nomCom: "supp", categorie: "Groupe",reaction:"🧹" }, async (dest, zk, 
 });
 
 zokou({ nomCom: "info", categorie: "Groupe" }, async (dest, zk, commandeOptions) => {
-  const { ms, repondre, verifGroupe, verifZokouAdmin } = commandeOptions;
+  const { ms, repondre, verifGroupe, verifZokouAdmin , mybotpic } = commandeOptions;
   if (!verifGroupe) { repondre("commande réservée au groupe uniquement"); return };
 
- try { ppgroup = await zk.profilePictureUrl(dest ,'image') ; } catch { ppgroup = conf.IMAGE_MENU}
+ try { ppgroup = await zk.profilePictureUrl(dest ,'image') ; } catch { ppgroup = mybotpic()}
 
     const info = await zk.groupMetadata(dest)
 
