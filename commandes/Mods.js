@@ -6,7 +6,7 @@ const  {addGroupToBanList,isGroupBanned,removeGroupFromBanList} = require("../bd
 const {isGroupOnlyAdmin,addGroupToOnlyAdminList,removeGroupFromOnlyAdminList} = require("../bdd/onlyAdmin");
 const {removeSudoNumber,addSudoNumber,issudo} = require("../bdd/sudo");
 const conf = require("../set");
-const fs = require('fs');
+const fs = require('fs-extra');
 const {updateThemeValue , getThemeChoice ,getAllThemesInfo,getThemeInfoById} = require('../bdd/theme');
 
 
@@ -461,24 +461,9 @@ msg += `${theme.id} : *${theme.nom}* proposé par ${theme.auteur}\n\n`
     zk.sendMessage(dest , { image : {url : mybotpic()} , caption : msg} , {quoted : ms})
 
     } else {
-
-      
-      const allthemes = await getAllThemesInfo();
-const allid = [];
-
-for (const theme of allthemes) {
-  allid.push(theme.id);
-}
-
-if (allid.includes(arg[0])) {
   await updateThemeValue(arg[0]);
-  repondre('Thème actualisé avec succès');
-} else {
-  repondre('Entrez le numéro du thème');
-}
 
-    }
-
-  
+      repondre('Theme actualiser avec succes')
+   }
 
 })

@@ -50,10 +50,9 @@ let { reagir } = require(__dirname + "/framework/app");
 var session = conf.session;
 const prefixe = conf.PREFIXE;
 
-
 async function authentification() {
     try {
-       
+        
         //console.log("le data "+data)
         if (!fs.existsSync(__dirname + "/auth/creds.json")) {
             console.log("connexion en cour ...");
@@ -65,7 +64,7 @@ async function authentification() {
         }
     }
     catch (e) {
-        console.log("Session Invalide " + e);
+        console.log("Session Invalide " + e );
         return;
     }
 }
@@ -178,12 +177,14 @@ setTimeout(() => {
                 // else{admin= false;}
                 return admin;
             }
+            
             const mbre = verifGroupe ? await infosGroupe.participants : '';
             //  const verifAdmin = verifGroupe ? await mbre.filter(v => v.admin !== null).map(v => v.id) : ''
             let admins = verifGroupe ? groupeAdmin(mbre) : '';
             const verifAdmin = verifGroupe ? admins.includes(auteurMessage) : false;
             var verifZokouAdmin = verifGroupe ? admins.includes(idBot) : false;
             /** ** */
+            await zk.sendPresenceUpdate("composing",origineMessage)
             /** ***** */
             const arg = texte ? texte.trim().split(/ +/).slice(1) : null;
             const verifCom = texte ? texte.startsWith(prefixe) : false;
@@ -192,11 +193,12 @@ setTimeout(() => {
            
             const {getThemeChoice,getThemeInfoById} = require('./bdd/theme');
               
-            let id = await getThemeChoice() ;
+           let id = await getThemeChoice() ;
             
            const imagemenu = await getThemeInfoById(id) ;
         
-            const {auteur, liens, nom} = imagemenu
+            //const {auteur, liens, nom} = imagemenu
+            const liens=imagemenu.liens;
         
             const lien = liens.split(',')            
             // Utiliser une boucle for...of pour parcourir les liens
@@ -228,7 +230,7 @@ function mybotpic() {
                 msgRepondu,
                 auteurMsgRepondu,
                 ms,
-                mybotpic
+               mybotpic
             
             };
             /** ****** gestion auto-status  */
@@ -567,16 +569,7 @@ function mybotpic() {
 
 ╔═════◇
 ║『𝗯𝘆 Djalega++』
-
-
- chaine de Zokou :
-
- https://whatsapp.com/channel/0029Va84eBILI8YT1TLuPo1x
-
- site officiel :
-
- https://zokoumd.000webhostapp.com/
-
+║ 
 ╚══════════════════╝`;
                 await zk.sendMessage(zk.user.id, { text: cmsg });
             }
